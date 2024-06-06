@@ -2,22 +2,32 @@ import Head from 'next/head';
 import styles from '@/styles/Home.module.css';
 import { AuthGuard, useAuth } from '@/components/useAuth';
 import Logout from '@/components/ui/Logout';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { LoadingStateTypes } from '@/components/redux/types';
 import PhoneVerification from '@/components/ui/PhoneVerification';
 import { useHomePage } from '@/components/redux/homePage/homePageSelectors';
 import { fetchHomePageData } from '@/components/redux/homePage/fetchHomePageData';
 import { useAppDispatch } from '@/components/redux/store';
+import Input from '@/components/ui/Input';
+import LoadingButton from '@/components/ui/LoadingButton';
+import {
+    EmailAuthProvider,
+    linkWithCredential,
+} from 'firebase/auth';
 
 export function Home() {
     const dispatch = useAppDispatch();
     const auth = useAuth();
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-    const homePageData = useHomePage();
+    const [email, setEmail] = useState('');
 
     useEffect(() => {
         dispatch(fetchHomePageData());
     }, []);
+
+    const saveEmail = async () => {
+        const authCredential = EmailAuthProvider.credential(email, 'diana123');
+        await linkWithCredential(auth.user, authCredential);
+    };
 
     return (
         <div className={styles.container}>
@@ -30,6 +40,19 @@ export function Home() {
             auth.user != null &&
             auth.user.phoneNumber == null ? (
                 <PhoneVerification />
+            ) : auth.user.email == null ? (
+                <>
+                    <h1>Email</h1>
+                    <p>What is your email?</p>
+                    <Input
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Email"
+                        name="email"
+                        type="text"
+                    />
+                    <LoadingButton onClick={saveEmail}>Register</LoadingButton>
+                </>
             ) : (
                 <main className={styles.main}>
                     <h1 className={styles.title}>

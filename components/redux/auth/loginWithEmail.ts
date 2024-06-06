@@ -31,6 +31,7 @@ export const loginWithEmail = createAsyncThunk(
 
             if (args.type === 'sign-up') {
                 await createUserWithEmailAndPassword(firebaseAuth, args.email, args.password);
+                // await signInWithPhoneNumber(firebaseAuth, );
             }
 
             await signInWithEmailAndPassword(firebaseAuth, args.email, args.password);

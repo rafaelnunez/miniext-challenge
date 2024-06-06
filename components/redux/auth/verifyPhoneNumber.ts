@@ -3,6 +3,7 @@ import {
     PhoneAuthProvider,
     RecaptchaVerifier,
     linkWithPhoneNumber,
+    updateEmail,
     updatePhoneNumber,
 } from 'firebase/auth';
 import { getFriendlyMessageFromFirebaseErrorCode } from './helpers';
