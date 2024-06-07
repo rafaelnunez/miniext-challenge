@@ -5,29 +5,23 @@ import Logout from '@/components/ui/Logout';
 import { useEffect, useState } from 'react';
 import { LoadingStateTypes } from '@/components/redux/types';
 import PhoneVerification from '@/components/ui/PhoneVerification';
-import { useHomePage } from '@/components/redux/homePage/homePageSelectors';
+// import { useHomePage } from '@/components/redux/homePage/homePageSelectors';
 import { fetchHomePageData } from '@/components/redux/homePage/fetchHomePageData';
 import { useAppDispatch } from '@/components/redux/store';
-import Input from '@/components/ui/Input';
-import LoadingButton from '@/components/ui/LoadingButton';
-import {
-    EmailAuthProvider,
-    linkWithCredential,
-} from 'firebase/auth';
+// import Input from '@/components/ui/Input';
+// import LoadingButton from '@/components/ui/LoadingButton';
+// import { EmailAuthProvider, linkWithCredential } from 'firebase/auth';
+// import Divider from '@/components/ui/Divider';
+// import LoginWithGoogleButton from '@/components/ui/LoginWithGoogleButton';
+import AddEmail from '@/components/ui/AddEmail';
 
 export function Home() {
     const dispatch = useAppDispatch();
     const auth = useAuth();
-    const [email, setEmail] = useState('');
 
     useEffect(() => {
         dispatch(fetchHomePageData());
     }, []);
-
-    const saveEmail = async () => {
-        const authCredential = EmailAuthProvider.credential(email, 'diana123');
-        await linkWithCredential(auth.user, authCredential);
-    };
 
     return (
         <div className={styles.container}>
@@ -41,18 +35,7 @@ export function Home() {
             auth.user.phoneNumber == null ? (
                 <PhoneVerification />
             ) : auth.user.email == null ? (
-                <>
-                    <h1>Email</h1>
-                    <p>What is your email?</p>
-                    <Input
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Email"
-                        name="email"
-                        type="text"
-                    />
-                    <LoadingButton onClick={saveEmail}>Register</LoadingButton>
-                </>
+                <AddEmail />
             ) : (
                 <main className={styles.main}>
                     <h1 className={styles.title}>

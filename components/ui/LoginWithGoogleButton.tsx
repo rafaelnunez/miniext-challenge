@@ -1,7 +1,10 @@
 import Image from 'next/image';
 import GoogleGLogo from '@/public/statics/images/google-g-logo.svg';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, linkWithPopup, signInWithPopup } from 'firebase/auth';
 import { firebaseAuth } from '../firebase/firebaseAuth';
+import { useAuth } from '../useAuth';
+import { LoadingStateTypes } from '../redux/types';
+import { useRouter } from 'next/navigation';
 
 const provider = new GoogleAuthProvider();
 
@@ -10,8 +13,17 @@ const provider = new GoogleAuthProvider();
  * @returns
  */
 const LoginWithGoogleButton = () => {
+    const auth = useAuth();
+    const router = useRouter();
+
     const loginWithGoogle = async () => {
         try {
+            if (auth.type === LoadingStateTypes.LOADED) {
+                await linkWithPopup(auth.user, provider);
+                router.refresh();
+                return;
+            }
+
             const result = await signInWithPopup(firebaseAuth, provider);
             const credential = GoogleAuthProvider.credentialFromResult(result);
             const token = credential?.accessToken;

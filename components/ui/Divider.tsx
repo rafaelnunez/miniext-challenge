@@ -3,6 +3,12 @@ import type { NextPage } from 'next';
 interface DividerProps {
     label: string;
 }
+
+
+/**
+ * Use this component to show divider with a label
+ * @returns
+ */
 const Divider: NextPage<DividerProps> = ({ label }) => {
     return (
         <div className="relative">

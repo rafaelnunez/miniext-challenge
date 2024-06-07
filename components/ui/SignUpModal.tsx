@@ -6,18 +6,20 @@ import LoginWithGoogleButton from './LoginWithGoogleButton';
 import Input from './Input';
 import { isEmail } from 'validator';
 import { loginWithEmail, useIsLoginWithEmailLoading } from '../redux/auth/loginWithEmail';
-// import PhoneVerification from './PhoneVerification';
-import { useSendVerificationCodeLoading } from '../redux/auth/verifyPhoneNumber';
-import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import { RecaptchaVerifier } from 'firebase/auth';
 import { showToast } from '../redux/toast/toastSlice';
 import { firebaseAuth } from '@/components/firebase/firebaseAuth';
-import { useAuth } from '../useAuth';
-import { LoadingStateTypes } from '../redux/types';
 import RadioGroup, { Radio } from './RadioGroup';
-import { SignUpTypes } from '../enum/signUpTypes';
+import { CredentialTypes } from '../enum/credentialTypes';
 import Divider from './Divider';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
+import {
+    loginWithPhoneNumber,
+    useIsLoginWithPhoneNumberLoading,
+    verifyPhoneNumberToLogin,
+    useVerifyPhoneNumberToLoginLoading,
+} from '../redux/auth/loginWithPhoneNumber';
 
 interface SignUpModalProps {
     open: boolean;
@@ -26,31 +28,35 @@ interface SignUpModalProps {
 const SignUpModal = (props: SignUpModalProps) => {
     const dispatch = useAppDispatch();
 
-    const [signUpType, setSignUpType] = useState('email');
-    const [phoneNumber, setPhoneNumber] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [disableSubmitEmail, setDisableSubmitEmail] = useState(true);
+    const isLoadingWithEmail = useIsLoginWithEmailLoading();
+
+    const [phoneNumber, setPhoneNumber] = useState('');
     const [disableSubmitPhone, setDisableSubmitPhone] = useState(true);
-    const isLoading = useIsLoginWithEmailLoading();
-    const sendVerificationLoading = useSendVerificationCodeLoading();
+    const isLoginWithPhoneNumber = useIsLoginWithPhoneNumberLoading();
+    const sendVerificationLoading = useVerifyPhoneNumberToLoginLoading();
     const [recaptcha, setRecaptcha] = useState<RecaptchaVerifier | null>(null);
     const [recaptchaResolved, setRecaptchaResolved] = useState(false);
     const [otp, setOtp] = useState('');
     const [showVerifyOtpModal, setShowVerifyOtpModal] = useState(false);
+
+    const [signUpType, setSignUpType] = useState('email');
     const signUpTypesOptions: Radio[] = [
         {
-            name: 'email',
+            name: 'email-signup',
             label: 'Email',
             value: 'email',
         },
         {
-            name: 'phone',
+            name: 'phone-signup',
             label: 'Phone',
             value: 'phone',
         },
     ];
 
+    // validate email and password
     useEffect(() => {
         if (isEmail(email) && password.length >= 6) {
             setDisableSubmitEmail(false);
@@ -59,17 +65,14 @@ const SignUpModal = (props: SignUpModalProps) => {
         }
     }, [email, password]);
 
+    // validate phone number
     useEffect(() => {
-        validatePhoneNumber(phoneNumber);
-    }, [phoneNumber]);
-
-    const validatePhoneNumber = (phone: string) => {
-        if (phone.length < 10) {
+        if (phoneNumber.length < 10) {
             setDisableSubmitPhone(true);
         } else {
             setDisableSubmitPhone(false);
         }
-    };
+    }, [phoneNumber]);
 
     // Signup with email and password and redirecting to home page
     const signUpWithEmail = useCallback(async () => {
@@ -86,7 +89,7 @@ const SignUpModal = (props: SignUpModalProps) => {
 
     // generating the recaptcha on page render
     useEffect(() => {
-        if (SignUpTypes.EMAIL === signUpType) return;
+        if (CredentialTypes.EMAIL === signUpType) return;
         const captcha = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', {
             size: 'normal',
             callback: () => {
@@ -112,38 +115,37 @@ const SignUpModal = (props: SignUpModalProps) => {
 
     // Sending OTP and storing id to verify it later
     const handleSendVerification = async () => {
-        signInWithPhoneNumber(firebaseAuth, phoneNumber, recaptcha!)
-            .then((confirmationResult) => {
-                // SMS sent. Prompt user to type the code from the message, then sign the
-                // user in with confirmationResult.confirm(code).
-                window.confirmationResult = confirmationResult;
-                setShowVerifyOtpModal(true);
+        dispatch(
+            loginWithPhoneNumber({
+                type: 'sign-up',
+                phoneNumber: phoneNumber,
+                recaptchaResolved: recaptchaResolved,
+                recaptcha,
+                callback: (result) => {
+                    if (result.type === 'error') {
+                        setRecaptchaResolved(false);
+                        return;
+                    }
+                    window.confirmationResult = result.confirmationResult;
+                    setShowVerifyOtpModal(true);
+                },
             })
-            .catch((error) => {
-                // Error; SMS not sent
-                console.log(error);
-            });
-        return;
+        );
     };
 
     const verifyOtp = async () => {
         if (otp.length === 6) {
-            // verifu otp
-            let confirmationResult = window.confirmationResult;
-            confirmationResult
-                .confirm(otp)
-                .then((result) => {
-                    // User signed in successfully.
-                    let user = result.user;
-                    console.log(user);
-                    alert('User signed in successfully');
-                    // ...
+            dispatch(
+                verifyPhoneNumberToLogin({
+                    OTPCode: otp,
+                    confirmationResult: window.confirmationResult,
+                    callback: (result) => {
+                        if (result.type === 'error') {
+                            return;
+                        }
+                    },
                 })
-                .catch((error) => {
-                    // User couldn't sign in (bad verification code?)
-                    // ...
-                    alert("User couldn't sign in (bad verification code?)");
-                });
+            );
         }
     };
 
@@ -158,7 +160,11 @@ const SignUpModal = (props: SignUpModalProps) => {
                         placeholder="Entry your OTP"
                         type="text"
                     />
-                    <LoadingButton onClick={verifyOtp} loadingText="Sending OTP">
+                    <LoadingButton
+                        onClick={verifyOtp}
+                        loading={sendVerificationLoading}
+                        loadingText="Verifying..."
+                    >
                         Verify
                     </LoadingButton>
                 </div>
@@ -177,7 +183,7 @@ const SignUpModal = (props: SignUpModalProps) => {
             />
             <div id="recaptcha-container" />
             <LoadingButton
-                loading={sendVerificationLoading}
+                loading={isLoginWithPhoneNumber}
                 loadingText="Sending OTP"
                 disabled={disableSubmitPhone}
                 onClick={handleSendVerification}
@@ -207,7 +213,7 @@ const SignUpModal = (props: SignUpModalProps) => {
             <LoadingButton
                 onClick={signUpWithEmail}
                 disabled={disableSubmitEmail}
-                loading={isLoading}
+                loading={isLoadingWithEmail}
             >
                 Sign Up
             </LoadingButton>
@@ -231,8 +237,8 @@ const SignUpModal = (props: SignUpModalProps) => {
                         selectedValue={signUpType}
                         onChange={setSignUpType}
                     />
-                    {SignUpTypes.PHONE === signUpType && signUpWithPhoneNumberComponent}
-                    {SignUpTypes.EMAIL === signUpType && signUpWithEmailComponent}
+                    {CredentialTypes.PHONE === signUpType && signUpWithPhoneNumberComponent}
+                    {CredentialTypes.EMAIL === signUpType && signUpWithEmailComponent}
                     <Divider label="Or sign up with" />
                     {signUpWithGmailComponent}
                 </div>

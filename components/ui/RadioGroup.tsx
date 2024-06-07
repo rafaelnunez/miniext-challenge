@@ -13,14 +13,20 @@ interface RadioGroupProps {
     onChange: (value: string) => void;
 }
 
+/**
+ * @param props.options Array to add several Radio
+ * @param props.selectedValue selected value by user
+ * @param props.onChange on change event for Radio
+ * @returns
+ */
 const RadioGroup: NextPage<RadioGroupProps> = ({ options, selectedValue, onChange }) => {
     return (
         <div className="flex justify-start space-x-5 ml-1">
             {options.map((option) => (
-                <div key={option.value} className="flex justify-start space-x-2 items-center">
+                <div key={option.name} className="flex justify-start space-x-2 items-center">
                     <div className="grid place-items-center">
                         <input
-                            id={option.value}
+                            id={option.name}
                             value={option.value}
                             name={option.name}
                             type="radio"
@@ -43,7 +49,7 @@ const RadioGroup: NextPage<RadioGroupProps> = ({ options, selectedValue, onChang
                             )}
                         />
                     </div>
-                    <label htmlFor={option.value} className="text-start hover:cursor-pointer">
+                    <label htmlFor={option.name} className="text-start hover:cursor-pointer">
                         {option.label}
                     </label>
                 </div>

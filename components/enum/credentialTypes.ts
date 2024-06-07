@@ -1,4 +1,4 @@
-export enum SignUpTypes {
+export enum CredentialTypes {
     PHONE = 'phone',
     EMAIL = 'email',
 }
