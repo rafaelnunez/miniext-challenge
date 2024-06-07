@@ -19,6 +19,8 @@ import {
     verifyPhoneNumber,
 } from '../redux/auth/verifyPhoneNumber';
 import SingInHeader from './SingInHeader';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 
 const PhoneVerification = () => {
     const dispatch = useAppDispatch();
@@ -107,12 +109,14 @@ const PhoneVerification = () => {
 
                 <div className="max-w-xl w-full rounded overflow-hidden shadow-lg py-2 px-4">
                     <div className="px-4 flex p-4 pb-10 gap-4 flex-col">
-                        <Input
+                        <PhoneInput
+                            defaultCountry="us"
+                            placeholder="Phone number"
+                            inputClassName="w-full"
                             value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value)}
-                            placeholder="phone number"
-                            type="text"
+                            onChange={(phone) => setPhoneNumber(phone)}
                         />
+                        <div id="recaptcha-container" />
                         <LoadingButton
                             onClick={handleSendVerification}
                             loading={sendVerificationLoading}
@@ -120,9 +124,7 @@ const PhoneVerification = () => {
                         >
                             Send OTP
                         </LoadingButton>
-                    </div>
-                    <div id="recaptcha-container" />
-                    <div className="flex w-full flex-col">
+                        <br />
                         <Logout />
                     </div>
 
