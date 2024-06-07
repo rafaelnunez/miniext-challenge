@@ -1,7 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app';
 import { /* connectFirestoreEmulator, */ getFirestore } from 'firebase/firestore';
-import { /* connectStorageEmulator, */ getStorage } from 'firebase/storage';
 // import { isDev } from '../isDev';
 
 // TODO: Add SDKs for Firebase products that you want to use

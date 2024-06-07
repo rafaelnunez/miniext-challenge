@@ -126,6 +126,8 @@ const SignUpModal = (props: SignUpModalProps) => {
                         setRecaptchaResolved(false);
                         return;
                     }
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     window.confirmationResult = result.confirmationResult;
                     setShowVerifyOtpModal(true);
                 },
@@ -138,6 +140,8 @@ const SignUpModal = (props: SignUpModalProps) => {
             dispatch(
                 verifyPhoneNumberToLogin({
                     OTPCode: otp,
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     confirmationResult: window.confirmationResult,
                     callback: (result) => {
                         if (result.type === 'error') {

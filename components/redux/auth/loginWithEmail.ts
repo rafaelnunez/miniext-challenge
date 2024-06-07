@@ -54,6 +54,8 @@ export const loginWithEmail = createAsyncThunk(
             if (args.type === 'add-credentials') {
                 if (args.auth) {
                     const authCredential = EmailAuthProvider.credential(args.email, args.password);
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     await linkWithCredential(args.auth?.user, authCredential);
                     args.callback!({ type: 'success' });
                 } else {

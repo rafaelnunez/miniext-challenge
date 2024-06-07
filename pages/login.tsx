@@ -121,6 +121,8 @@ const LoginPage: NextPage = () => {
                         setRecaptchaResolved(false);
                         return;
                     }
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     window.confirmationResult = result.confirmationResult;
                     setShowVerifyOtpModal(true);
                 },
@@ -133,6 +135,8 @@ const LoginPage: NextPage = () => {
             dispatch(
                 verifyPhoneNumberToLogin({
                     OTPCode: otp,
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     confirmationResult: window.confirmationResult,
                     callback: (result) => {
                         if (result.type === 'error') {

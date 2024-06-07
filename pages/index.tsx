@@ -2,17 +2,11 @@ import Head from 'next/head';
 import styles from '@/styles/Home.module.css';
 import { AuthGuard, useAuth } from '@/components/useAuth';
 import Logout from '@/components/ui/Logout';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { LoadingStateTypes } from '@/components/redux/types';
 import PhoneVerification from '@/components/ui/PhoneVerification';
-// import { useHomePage } from '@/components/redux/homePage/homePageSelectors';
 import { fetchHomePageData } from '@/components/redux/homePage/fetchHomePageData';
 import { useAppDispatch } from '@/components/redux/store';
-// import Input from '@/components/ui/Input';
-// import LoadingButton from '@/components/ui/LoadingButton';
-// import { EmailAuthProvider, linkWithCredential } from 'firebase/auth';
-// import Divider from '@/components/ui/Divider';
-// import LoginWithGoogleButton from '@/components/ui/LoginWithGoogleButton';
 import AddEmail from '@/components/ui/AddEmail';
 
 export function Home() {
@@ -34,7 +28,9 @@ export function Home() {
             auth.user != null &&
             auth.user.phoneNumber == null ? (
                 <PhoneVerification />
-            ) : auth.user.email == null ? (
+            ) : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            auth.user.email == null ? (
                 <AddEmail />
             ) : (
                 <main className={styles.main}>
