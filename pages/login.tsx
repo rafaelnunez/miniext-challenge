@@ -27,6 +27,7 @@ import { firebaseAuth } from '@/components/firebase/firebaseAuth';
 import { showToast } from '@/components/redux/toast/toastSlice';
 import Modal from '@/components/ui/Modal';
 import SingInHeader from '@/components/ui/SingInHeader';
+import ByMe from '@/components/ui/ByMe';
 
 export const googleLoginProvider = new GoogleAuthProvider();
 
@@ -286,6 +287,7 @@ const LoginPage: NextPage = () => {
                     </div>
                     <SignUpModal open={showRegistration} setOpen={setshowRegistration} />
                 </div>
+                <ByMe />
             </div>
             <ToastBox />
         </div>
